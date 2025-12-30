@@ -46,8 +46,9 @@ def human_mouse_movement(duration_seconds=60):
     
     while time.time() - start_time < duration_seconds:
         action = random.choices(
-            ['move', 'click', 'scroll', 'double_click', 'idle'],
-            weights=[50, 20, 15, 5, 10]
+            # ['move', 'click', 'scroll', 'double_click', 'idle'],
+            ['move', 'scroll', 'idle'],
+            weights=[50, 20, 30]
         )[0]
         
         if action == 'move':
@@ -139,9 +140,9 @@ def human_typing_activity(duration_seconds=60):
         elif action == 'shortcut':
             # Common keyboard shortcuts
             shortcuts = [
-                ['ctrl', 'c'],  # copy
-                ['ctrl', 'v'],  # paste
-                ['ctrl', 's'],  # save
+                # ['ctrl', 'c'],  # copy
+                # ['ctrl', 'v'],  # paste
+                # ['ctrl', 's'],  # save
                 ['ctrl', 'a'],  # select all
             ]
             shortcut = random.choice(shortcuts)
