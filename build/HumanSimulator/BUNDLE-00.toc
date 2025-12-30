@@ -1,0 +1,3 @@
+([('HumanSimulator',
+   '/Users/tahiru/Desktop/bots/dist/HumanSimulator',
+   'EXECUTABLE')],)
