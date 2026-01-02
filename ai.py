@@ -21,8 +21,8 @@ class HumanSimulatorGUI:
     def __init__(self):
         self.root = ctk.CTk()
         self.root.title("Human PC Usage Simulator")
-        self.root.geometry("600x950")
-        self.root.resizable(True, True)
+        self.root.geometry("600x800")
+        self.root.resizable(False, False)
         
         # Set theme
         ctk.set_appearance_mode("dark")
@@ -47,6 +47,10 @@ class HumanSimulatorGUI:
         
         self.setup_ui()
         
+        # Bind keyboard shortcuts
+        self.root.bind('<Tab>', lambda e: self.pause_simulation() if self.is_running else None)
+        self.root.bind('<Escape>', lambda e: self.stop_simulation() if self.is_running else None)
+        
     def setup_ui(self):
         # Title
         title = ctk.CTkLabel(
@@ -56,9 +60,13 @@ class HumanSimulatorGUI:
         )
         title.pack(pady=20)
         
+        # Create scrollable frame for all content
+        self.scrollable_frame = ctk.CTkScrollableFrame(self.root, width=560, height=680)
+        self.scrollable_frame.pack(pady=10, padx=20, fill="both", expand=True)
+        
         # Duration Frame
-        duration_frame = ctk.CTkFrame(self.root)
-        duration_frame.pack(pady=20, padx=40, fill="x")
+        duration_frame = ctk.CTkFrame(self.scrollable_frame)
+        duration_frame.pack(pady=20, padx=20, fill="x")
         
         ctk.CTkLabel(
             duration_frame,
@@ -89,9 +97,51 @@ class HumanSimulatorGUI:
         ctk.CTkButton(preset_frame, text="2 hours", width=70, command=lambda: self.set_preset(2, 0)).grid(row=0, column=2, padx=5)
         ctk.CTkButton(preset_frame, text="4 hours", width=70, command=lambda: self.set_preset(4, 0)).grid(row=0, column=3, padx=5)
         
+        # Control Buttons (moved here, right below duration)
+        button_frame = ctk.CTkFrame(self.scrollable_frame)
+        button_frame.pack(pady=15, padx=20)
+        
+        self.start_button = ctk.CTkButton(
+            button_frame,
+            text="▶️ Start",
+            command=self.start_simulation,
+            width=150,
+            height=40,
+            font=ctk.CTkFont(size=14, weight="bold"),
+            fg_color="green",
+            hover_color="darkgreen"
+        )
+        self.start_button.grid(row=0, column=0, padx=5)
+        
+        self.pause_button = ctk.CTkButton(
+            button_frame,
+            text="⏸️ Pause",
+            command=self.pause_simulation,
+            width=150,
+            height=40,
+            font=ctk.CTkFont(size=14, weight="bold"),
+            fg_color="orange",
+            hover_color="darkorange",
+            state="disabled"
+        )
+        self.pause_button.grid(row=0, column=1, padx=5)
+        
+        self.stop_button = ctk.CTkButton(
+            button_frame,
+            text="⏹️ Stop",
+            command=self.stop_simulation,
+            width=150,
+            height=40,
+            font=ctk.CTkFont(size=14, weight="bold"),
+            fg_color="red",
+            hover_color="darkred",
+            state="disabled"
+        )
+        self.stop_button.grid(row=0, column=2, padx=5)
+        
         # Activities Selection Frame
-        activities_frame = ctk.CTkFrame(self.root)
-        activities_frame.pack(pady=20, padx=40, fill="x")
+        activities_frame = ctk.CTkFrame(self.scrollable_frame)
+        activities_frame.pack(pady=20, padx=20, fill="x")
         
         ctk.CTkLabel(
             activities_frame,
@@ -169,8 +219,8 @@ class HumanSimulatorGUI:
         ).grid(row=0, column=1, padx=5)
         
         # Status Frame
-        status_frame = ctk.CTkFrame(self.root)
-        status_frame.pack(pady=20, padx=40, fill="both", expand=True)
+        status_frame = ctk.CTkFrame(self.scrollable_frame)
+        status_frame.pack(pady=20, padx=20, fill="both", expand=True)
         
         ctk.CTkLabel(
             status_frame,
@@ -214,59 +264,17 @@ class HumanSimulatorGUI:
         self.progress.set(0)
         
         # Log text area
-        self.log_text = ctk.CTkTextbox(status_frame, height=180, width=500)
+        self.log_text = ctk.CTkTextbox(status_frame, height=150, width=480)
         self.log_text.pack(pady=10, padx=10)
         
-        # Control Buttons
-        button_frame = ctk.CTkFrame(self.root)
-        button_frame.pack(pady=20)
-        
-        self.start_button = ctk.CTkButton(
-            button_frame,
-            text="▶️ Start Simulation",
-            command=self.start_simulation,
-            width=150,
-            height=40,
-            font=ctk.CTkFont(size=14, weight="bold"),
-            fg_color="green",
-            hover_color="darkgreen"
-        )
-        self.start_button.grid(row=0, column=0, padx=5)
-        
-        self.pause_button = ctk.CTkButton(
-            button_frame,
-            text="⏸️ Pause",
-            command=self.pause_simulation,
-            width=150,
-            height=40,
-            font=ctk.CTkFont(size=14, weight="bold"),
-            fg_color="orange",
-            hover_color="darkorange",
-            state="disabled"
-        )
-        self.pause_button.grid(row=0, column=1, padx=5)
-        
-        self.stop_button = ctk.CTkButton(
-            button_frame,
-            text="⏹️ Stop Simulation",
-            command=self.stop_simulation,
-            width=150,
-            height=40,
-            font=ctk.CTkFont(size=14, weight="bold"),
-            fg_color="red",
-            hover_color="darkred",
-            state="disabled"
-        )
-        self.stop_button.grid(row=0, column=2, padx=5)
-        
-        # Safety warning
+        # Safety warning at the bottom
         warning = ctk.CTkLabel(
-            self.root,
-            text="⚠️ Safety: Move mouse to top-left corner to abort",
+            status_frame,
+            text="⚠️ Safety: Move mouse to top-left corner to abort\n⌨️ Shortcuts: Tab = Pause/Resume | Esc = Stop",
             font=ctk.CTkFont(size=10),
             text_color="orange"
         )
-        warning.pack(pady=5)
+        warning.pack(pady=10)
         
     def set_preset(self, hours, minutes):
         self.hours_entry.delete(0, 'end')
@@ -357,6 +365,9 @@ class HumanSimulatorGUI:
             self.log("❌ Invalid duration format")
     
     def pause_simulation(self):
+        if not self.is_running:
+            return "break"  # Prevent Tab from changing focus
+            
         if not self.is_paused:
             # Pause
             self.is_paused = True
@@ -374,6 +385,8 @@ class HumanSimulatorGUI:
             self.pause_button.configure(text="⏸️ Pause", fg_color="orange", hover_color="darkorange")
             self.log("▶️ Simulation resumed")
             self.update_status("🟢 Running")
+        
+        return "break"  # Prevent Tab from changing focus
             
     def stop_simulation(self):
         self.is_running = False
